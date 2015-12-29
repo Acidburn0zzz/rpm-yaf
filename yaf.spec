@@ -2,30 +2,34 @@
 Summary: Yet Another Flow sensor
 Name: yaf
 Version: 2.7.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Applications/System
 License: GPL
 Source: http://tools.netsa.cert.org/releases/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}
 Vendor: http://tools.netsa.cert.org/
 Provides: yaf
+
 Requires: glib2 >= 2.6.4
 Requires: libfixbuf >= 1.0.0
 Requires: libpcap
+
 %if "x" == "x1"
 Requires: pcre >= 7.3
 %endif
+
 BuildRequires: glib2-devel >= 2.6.4
 BuildRequires: libfixbuf-devel >= 1.0.0
 BuildRequires: pkgconfig >= 0.8
-%if 1 == 2
+BuildRequires: gcc
+BuildRequires: make
+BuildRequires: autoconf
 BuildRequires: libpcap-devel
 BuildRequires: libtool-ltdl-devel
-%endif
+
 %if "x" == "x1"
 BuildRequires: pcre-devel >= 7.3
 %endif
-
 
 
 %description
@@ -51,6 +55,11 @@ Static libraries and C header files for yaf.
 
 %build
 ./configure --host=%{_host} --build=%{_build} --target=%{_target_platform} --program-prefix=%{?_program_prefix} --prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --infodir=%{_infodir} --disable-static 
+
+# https://fedoraproject.org/wiki/RPath_Packaging_Draft
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
 %{__make}
 
 %install
@@ -106,6 +115,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/*
 
 %changelog
+* Tue Dec 29 2015 John Siegrist <john@complects.com> - 2.7.1-2
+- Adjusted the BuildRequires dependencies for a cleaner build.
 * Tue Jun 02 2015 Arun Babu Neelicattu <arun.neelicattu@gmail.com> - 2.7.1-1
 - Initial specfile
 
