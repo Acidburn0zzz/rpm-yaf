@@ -1,8 +1,8 @@
 
 Summary: Yet Another Flow sensor
 Name: yaf
-Version: 2.7.1
-Release: 2%{?dist}
+Version: 2.8.4
+Release: 1%{?dist}
 Group: Applications/System
 License: GPL
 Source: http://tools.netsa.cert.org/releases/%{name}-%{version}.tar.gz
@@ -10,27 +10,23 @@ BuildRoot: %{_tmppath}/%{name}-%{version}
 Vendor: http://tools.netsa.cert.org/
 Provides: yaf
 
+BuildRequires: autoconf
+BuildRequires: gcc
+BuildRequires: glib2-devel >= 2.6.4
+BuildRequires: libfixbuf-devel >= 1.0.0
+BuildRequires: libpcap-devel
+BuildRequires: libtool-ltdl-devel
+BuildRequires: make
+BuildRequires: openssl-devel
+BuildRequires: pcre-devel >= 7.3
+BuildRequires: pkgconfig >= 0.8
+BuildRequires: zlib-devel
+
+BuildRequires: openssl
 Requires: glib2 >= 2.6.4
 Requires: libfixbuf >= 1.0.0
 Requires: libpcap
-
-%if "x" == "x1"
 Requires: pcre >= 7.3
-%endif
-
-BuildRequires: glib2-devel >= 2.6.4
-BuildRequires: libfixbuf-devel >= 1.0.0
-BuildRequires: pkgconfig >= 0.8
-BuildRequires: gcc
-BuildRequires: make
-BuildRequires: autoconf
-BuildRequires: libpcap-devel
-BuildRequires: libtool-ltdl-devel
-
-%if "x" == "x1"
-BuildRequires: pcre-devel >= 7.3
-%endif
-
 
 %description
 YAF is Yet Another Flow sensor. It processes packet data from pcap(3) dumpfiles
@@ -46,7 +42,6 @@ Provides: yaf-devel
 Requires: %{name} = %{version}
 Requires: pkgconfig >= 0.8
 
-
 %description devel
 Static libraries and C header files for yaf.
 
@@ -54,7 +49,26 @@ Static libraries and C header files for yaf.
 %setup -q -n %{name}-%{version}
 
 %build
-./configure --host=%{_host} --build=%{_build} --target=%{_target_platform} --program-prefix=%{?_program_prefix} --prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --infodir=%{_infodir} --disable-static 
+./configure --host=%{_host} \
+    --build=%{_build} \
+    --target=%{_target_platform} \
+    --program-prefix=%{?_program_prefix} \
+    --prefix=%{_prefix} \
+    --exec-prefix=%{_exec_prefix} \
+    --bindir=%{_bindir} \
+    --sbindir=%{_sbindir} \
+    --sysconfdir=%{_sysconfdir} \
+    --datadir=%{_datadir} \
+    --includedir=%{_includedir} \
+    --libdir=%{_libdir} \
+    --libexecdir=%{_libexecdir} \
+    --localstatedir=%{_localstatedir} \
+    --sharedstatedir=%{_sharedstatedir} \
+    --mandir=%{_mandir} \
+    --infodir=%{_infodir} \
+    --disable-static \
+    --enable-plugins \
+    --enable-applabel
 
 # https://fedoraproject.org/wiki/RPath_Packaging_Draft
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
@@ -88,20 +102,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/filedaemon
 %{_bindir}/getFlowKeyHash
 %{_bindir}/yafMeta2Pcap
-%if "x1" == "x1"
 %{_bindir}/ipfixDump
-%endif
 %{_libdir}/*.so*
-%if "x" == "x1"
 %{_libdir}/yaf/*.so*
-%{_libdir}/yaf/*.la 
-%endif
 %{_mandir}/*
 %config(noreplace) %{_sysconfdir}/yafApplabelRules.conf
-%if "x" == "x1"
 %config(noreplace) %{_sysconfdir}/yafDPIRules.conf
 %config(noreplace) %{_sysconfdir}/dhcp_fingerprints.conf
-%endif
 %if "x" == "x1"
 %config(noreplace) %{_sysconfdir}/p0f.fp
 %endif
@@ -112,9 +119,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_includedir}/*
 %{_libdir}/*.la
+%{_libdir}/yaf/*.la
 %{_libdir}/pkgconfig/*
 
 %changelog
+* Mon Oct 17 2016 John Siegrist <john@complects.com> - 2.8.4-1
+- Update to version 2.8.4
 * Tue Dec 29 2015 John Siegrist <john@complects.com> - 2.7.1-2
 - Adjusted the BuildRequires dependencies for a cleaner build.
 * Tue Jun 02 2015 Arun Babu Neelicattu <arun.neelicattu@gmail.com> - 2.7.1-1
